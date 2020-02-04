@@ -1,0 +1,73 @@
+{
+  "apis": [
+    {
+      "name": "Petstore",
+      "id": "petstore",
+      "plans": [
+        "stupid",
+        "basic",
+        "unlimited"
+      ],
+      "desc": "This is a sample Petstore server. You can find out more about Swagger at [http://swagger.io](http://swagger.io).",
+      "tags": [
+        "Sample"
+      ],
+      "auth": "key-auth"
+    },
+    {
+      "name": "Petstore OAuth",
+      "id": "petstore-oauth",
+      "plans": [
+        "stupid",
+        "basic",
+        "unlimited"
+      ],
+      "desc": "This is a sample Petstore server secured via OAuth 2.0 Client Credentials flow.",
+      "tags": [
+        "Sample"
+      ],
+      "auth": "oauth2",
+      "requiredGroup": "dev",
+      "authMethods": [
+        "default:local",
+        "default:senior"
+      ],
+      "settings": {
+        "token_expiration": 3600,
+        "enable_client_credentials": true,
+        "scopes": {},
+        "enable_implicit_grant": true,
+        "enable_password_grant": true,
+        "enable_authorization_code": true
+      },
+      "registrationPool": ""
+    },
+    {
+      "id": "test_wendell",
+      "name": "Teste modificado",
+      "desc": "Eu mudei mesmo",
+      "auth": "key-auth",
+      "tags": [
+        "Muda",
+        "Calada"
+      ],
+      "plans": [
+        "basic",
+        "stupid",
+        "unlimited",
+        "godlike"
+      ],
+      "authMethods": [],
+      "requiredGroup": "",
+      "registrationPool": ""
+    }
+  ],
+  "_links": {
+    "self": {
+      "href": "/apis"
+    },
+    "plans": {
+      "href": "/plans"
+    }
+  }
+}

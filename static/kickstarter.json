@@ -1,0 +1,22 @@
+{
+  "ipconfig": 1,
+  "ssl": 1,
+  "users": 3,
+  "auth": 2,
+  "groups": 0,
+  "plans": 2,
+  "apis": 1,
+  "recaptcha": 2,
+  "content": 0,
+  "email": 0,
+  "chatbot": 0,
+  "templates": 0,
+  "design": 3,
+  "envs": [
+    "default",
+    "k8s",
+    "box"
+  ],
+  "env": 2,
+  "deploy": 3
+}

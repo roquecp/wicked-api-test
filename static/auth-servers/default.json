@@ -1,0 +1,62 @@
+{
+  "id": "default-auth",
+  "desc": "Default Authorization Server",
+  "authMethods": [
+    {
+      "enabled": true,
+      "name": "local",
+      "type": "local",
+      "friendlyShort": "Username and Password",
+      "friendlyLong": "Log in using a local username and password.",
+      "config": {
+        "trustUsers": false
+      }
+    },
+    {
+      "enabled": true,
+      "type": "adfs",
+      "name": "senior",
+      "friendlyShort": "Short friendly name",
+      "friendlyLong": "Long friendly name",
+      "config": {
+        "clientId": "your-client-id",
+        "clientSecret": "your-client-secret",
+        "endpoints": {
+          "authorizeEndpoint": "https://your.idp.com/oauth2/authorize",
+          "tokenEndpoint": "https://your.idp.com/oauth2/token"
+        },
+        "resource": "http://your.resource.uri",
+        "params": {},
+        "customIdField": "sub",
+        "firstNameField": "given_name",
+        "lastNameField": "family_name",
+        "emailField": "email",
+        "certificate": "-----BEGIN CERTIFICATE-----\r\nMIIFBjCCA...",
+        "defaultGroups": {
+          "DOMAIN\\_Some_Group": "dev"
+        }
+      }
+    }
+  ],
+  "config": {
+    "api": {
+      "name": "default-auth",
+      "upstream_url": "$PORTAL_AUTHSERVER_URL",
+      "preserve_host": false,
+      "uris": [
+        "/auth"
+      ],
+      "strip_uri": false
+    },
+    "plugins": [
+      {
+        "name": "correlation-id",
+        "config": {
+          "header_name": "Correlation-Id",
+          "generator": "uuid",
+          "echo_downstream": false
+        }
+      }
+    ]
+  }
+}

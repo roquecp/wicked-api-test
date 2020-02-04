@@ -1,0 +1,13 @@
+{
+  "api": {
+    "upstream_url": "http://petstore.swagger.io/v2",
+    "preserve_host": false,
+    "name": "petstore-oauth",
+    "uris": [
+      "/petstore-oauth"
+    ],
+    "strip_uri": true,
+    "host": "$PORTAL_NETWORK_APIHOST"
+  },
+  "plugins": []
+}

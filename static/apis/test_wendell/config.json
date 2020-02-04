@@ -1,0 +1,23 @@
+{
+  "api": {
+    "upstream_url": "https://bcnx13tdu0.execute-api.us-east-1.amazonaws.com/prod",
+    "name": "test_wendell",
+    "uris": [
+      "/training"
+    ],
+    "strip_uri": true,
+    "preserve_host": false,
+    "host": "$PORTAL_NETWORK_APIHOST"
+  },
+  "plugins": [
+    {
+      "name": "cors",
+      "config": {
+        "origins": [
+          "*"
+        ],
+        "methods": "GET,HEAD,PUT,PATCH,POST,DELETE"
+      }
+    }
+  ]
+}

@@ -76,7 +76,7 @@
         "scopes": {},
         "mandatory_scope": false
       },
-      "requiredGroup": "dev",
+      "requiredGroup": "",
       "registrationPool": ""
     }
   ],

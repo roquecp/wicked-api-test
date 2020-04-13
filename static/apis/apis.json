@@ -44,13 +44,10 @@
     },
     {
       "id": "test_wendell",
-      "name": "Teste modificado",
-      "desc": "Eu mudei mesmo",
-      "auth": "key-auth",
-      "tags": [
-        "Muda",
-        "Calada"
-      ],
+      "name": "Pratique API",
+      "desc": "Endpoint do pratique",
+      "auth": "none",
+      "tags": [],
       "plans": [
         "basic",
         "stupid",
@@ -59,7 +56,12 @@
       ],
       "authMethods": [],
       "requiredGroup": "",
-      "registrationPool": ""
+      "registrationPool": "",
+      "settings": {
+        "token_expiration": 3600,
+        "scopes": {},
+        "mandatory_scope": false
+      }
     }
   ],
   "_links": {

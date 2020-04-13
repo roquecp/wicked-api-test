@@ -4,14 +4,13 @@
       "id": "basic",
       "name": "Basic Plan",
       "desc": "Basic access to the API, limits access to 100 calls per hour.",
-      "needsApproval": false,
       "config": {
         "plugins": [
           {
-            "name": "rate-limiting",
             "config": {
               "hour": 100
-            }
+            },
+            "name": "rate-limiting"
           }
         ]
       }
@@ -20,14 +19,13 @@
       "id": "stupid",
       "name": "Stupid Plan",
       "desc": "Stupid access to the API, limits access to 1 call per minute.",
-      "needsApproval": false,
       "config": {
         "plugins": [
           {
-            "name": "rate-limiting",
             "config": {
               "minute": 4
-            }
+            },
+            "name": "rate-limiting"
           }
         ]
       }
@@ -50,10 +48,5 @@
         "plugins": []
       }
     }
-  ],
-  "_links": {
-    "self": {
-      "href": "/plans"
-    }
-  }
+  ]
 }

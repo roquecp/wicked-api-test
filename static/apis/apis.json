@@ -69,7 +69,12 @@
       "desc": "API da Plataforma",
       "auth": "none",
       "tags": [],
-      "plans": [],
+      "plans": [
+        "basic",
+        "stupid",
+        "unlimited",
+        "godlike"
+      ],
       "authMethods": [],
       "settings": {
         "token_expiration": 3600,

@@ -62,6 +62,22 @@
         "scopes": {},
         "mandatory_scope": false
       }
+    },
+    {
+      "id": "authentication",
+      "name": "Authentication",
+      "desc": "API de Autenticação da Plataforma",
+      "auth": "none",
+      "tags": [],
+      "plans": [],
+      "authMethods": [],
+      "settings": {
+        "token_expiration": 3600,
+        "scopes": {},
+        "mandatory_scope": false
+      },
+      "requiredGroup": "dev",
+      "registrationPool": ""
     }
   ],
   "_links": {

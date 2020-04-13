@@ -1,0 +1,1500 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "4.12.0",
+    "title": "Autenticação",
+    "description": "Responsável pela autenticação na plataforma G7.",
+    "x-senior-domain": "platform",
+    "x-senior-domain-path": "platform",
+    "x-senior-service-path": "authentication",
+    "contact": {
+      "name": "Senior X Platform",
+      "url": "http://dev.senior.com.br",
+      "email": "seniorx-dev@senior.com.br"
+    }
+  },
+  "host": "platform.senior.com.br",
+  "basePath": "/t/senior.com.br/bridge/1.0/rest/platform/authentication/",
+  "securityDefinitions": {
+    "bearerAuth": {
+      "type": "apiKey",
+      "in": "header",
+      "name": "Authorization"
+    }
+  },
+  "produces": [
+    "application/json"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "paths": {
+    "/queries/tenantLoginSettings": {
+      "get": {
+        "description": "Obtém as configurações de login do tenant associado ao tenantDomain informado.",
+        "tags": [
+          "Endpoints"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "tenantDomain",
+            "description": "Domínio do tenant que deve as informações de login retornadas.",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "scope",
+            "description": "Escopo personalizado para login via SAML, utilizado por aplicações mobile",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "in": "header",
+            "name": "Accept",
+            "description": "Content types and endpoint version for the request. Example: application/json;seniorx.version=2",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "schema": {
+              "type": "object",
+              "required": [
+                "tenantName",
+                "cookieDomain",
+                "changePasswordSettings",
+                "rememberMeSettings",
+                "loginProviders",
+                "authenticationTypes"
+              ],
+              "properties": {
+                "tenantName": {
+                  "type": "string",
+                  "description": "Nome do tenant associado ao domínio informado."
+                },
+                "cookieDomain": {
+                  "type": "string",
+                  "description": "Dóminio em que os cookies utilizados pela plataforma devem estar associados."
+                },
+                "changePasswordSettings": {
+                  "type": "object",
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/changePasswordSettings"
+                    }
+                  ],
+                  "description": "Configurações de redefinição de senha."
+                },
+                "rememberMeSettings": {
+                  "type": "object",
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/rememberMeSettings"
+                    }
+                  ],
+                  "description": "Configurações de lembrar-me."
+                },
+                "loginProviders": {
+                  "type": "object",
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/loginProviders"
+                    }
+                  ],
+                  "description": "Provedores para realizar login."
+                },
+                "authenticationTypes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minimum": 1
+                  },
+                  "description": "Tipos de autenticação suportados"
+                },
+                "tenantDomain": {
+                  "type": "string",
+                  "description": "Domain do tenant, utilizado para quando é realizada a requisição usando o tenantName."
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "schema": {
+              "$ref": "#/definitions/genericError"
+            }
+          }
+        }
+      }
+    },
+    "/anonymous/queries/getUserAuthenticationType": {
+      "get": {
+        "description": "",
+        "tags": [
+          "Endpoints"
+        ],
+        "parameters": [
+          {
+            "name": "username",
+            "description": "Nome do usuário incluindo o domínio. Exemplo: ana.silva@senior.com.br.",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "header",
+            "name": "Accept",
+            "description": "Content types and endpoint version for the request. Example: application/json;seniorx.version=2",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "schema": {
+              "type": "object",
+              "required": [
+                "authenticationType"
+              ],
+              "properties": {
+                "authenticationType": {
+                  "type": "string",
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/authType"
+                    }
+                  ],
+                  "description": "Tipo de autenticação do usuário"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "schema": {
+              "$ref": "#/definitions/genericError"
+            }
+          }
+        }
+      }
+    },
+    "/actions/login": {
+      "post": {
+        "description": "Realiza login na plataforma.\n O login pode ser realizado informando usuário e senha ou o código de autorização obtido de um provedor externo (SAML, por exemplo).\n Se o usuário/tenant estiver configurado para usar autenticação multifator, será retornado, dentro do objeto 'mfaInfo', um token temporário que deverá ser utilizado na primitiva loginMFA para efetivamente realizar o login.",
+        "tags": [
+          "Endpoints"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Accept",
+            "description": "Content types and endpoint version for the request. Example: application/json;seniorx.version=2",
+            "type": "string"
+          },
+          {
+            "name": "input",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "username": {
+                  "type": "string",
+                  "description": "Nome do usuário incluindo o domínio. Exemplo: ana.silva@senior.com.br.\n Este campo deve ser informado se o login for baseado em um usuário e senha."
+                },
+                "password": {
+                  "type": "string",
+                  "description": "Senha do usuário. Este campo deve ser informado se o login for baseado em um usuário e senha."
+                },
+                "code": {
+                  "type": "string",
+                  "description": "Código de autorização do provedor externo de autenticação. Provedores suportados: SAML.\n Este campo deve ser informado se o login for baseado em um código de autorização."
+                },
+                "scope": {
+                  "type": "string",
+                  "description": "Escopo do token da autenticação. Opcional, se não for informado será usado o valor padrão 'desktop'"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "jsonToken": {
+                  "type": "string",
+                  "description": "String contendo um json com os tokens de acesso, de refresh, o tempo de validade restante para o token de acesso e o nome do usuário.\n Se o usuário/tenant estiver configurado para usar autenticação multifator, esse token não será retornado. Ao invés disso, será retornado um token temporário, dentro do 'mfaInfo', que\n deverá ser enviado na primitiva loginMFA."
+                },
+                "mfaInfo": {
+                  "type": "object",
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/loginMFAInfo"
+                    }
+                  ],
+                  "description": "Informações para realizar o próximo passo da autenticação quando o usuário utiliza autenticação multifator."
+                },
+                "resetPasswordInfo": {
+                  "type": "object",
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/resetPasswordInfo"
+                    }
+                  ],
+                  "description": "Informações para realizar o próximo passo da autenticação quando o usuário está sinalizado para alterar a senha após se autenticar."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida, parâmetros obrigatórios não informados ou campo informado incorretamente"
+          },
+          "401": {
+            "description": "Usuário ou senha inválido"
+          },
+          "default": {
+            "description": "Error response",
+            "schema": {
+              "$ref": "#/definitions/genericError"
+            }
+          }
+        }
+      }
+    },
+    "/actions/loginWithResetPassword": {
+      "post": {
+        "description": "Realiza o login na plataforma e altera a senha do usuário.\n Quando o usuário é sinalizado para alterar a senha após se autenticar ao fazer o login ele recebe um token temporário que deve ser passado no campo `temporaryToken`,\n o token indica que o usuário já se autenticou na plataforma porém precisa alterar a senha para finalizar o processo de login.",
+        "tags": [
+          "Endpoints"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Accept",
+            "description": "Content types and endpoint version for the request. Example: application/json;seniorx.version=2",
+            "type": "string"
+          },
+          {
+            "name": "input",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "username",
+                "temporaryToken",
+                "newPassword"
+              ],
+              "properties": {
+                "username": {
+                  "type": "string",
+                  "description": "Nome do usuário incluindo o domínio. Exemplo: ana.silva@senior.com.br."
+                },
+                "temporaryToken": {
+                  "type": "string",
+                  "description": "Teken temporário retornado pela primitiva 'login'."
+                },
+                "newPassword": {
+                  "type": "string",
+                  "description": "Nova senha que deve ser atribuída ao usuário associado ao token temporário"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "schema": {
+              "type": "object",
+              "required": [
+                "jsonToken"
+              ],
+              "properties": {
+                "jsonToken": {
+                  "type": "string",
+                  "description": "String contendo um json com os tokens de acesso, de refresh, o nome do usuário e o tempo de validade restante para o token de acesso."
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "schema": {
+              "$ref": "#/definitions/genericError"
+            }
+          }
+        }
+      }
+    },
+    "/actions/loginMFA": {
+      "post": {
+        "description": "Realiza o login na plataforma por meio de um código de validação OTP (One-time password) gerado pelo Google Authenticator.\n Além do código de validação, é necessário informar o token temporário que foi retornado pela primitiva 'login', que é sempre o primeiro passo da autenticação.",
+        "tags": [
+          "Endpoints"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Accept",
+            "description": "Content types and endpoint version for the request. Example: application/json;seniorx.version=2",
+            "type": "string"
+          },
+          {
+            "name": "input",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "temporaryToken",
+                "validationCode"
+              ],
+              "properties": {
+                "temporaryToken": {
+                  "type": "string",
+                  "description": "Token temporário que foi retornado pela primitiva 'login'."
+                },
+                "validationCode": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "Código de validação gerado pelo Google Authenticator"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "schema": {
+              "type": "object",
+              "required": [
+                "jsonToken"
+              ],
+              "properties": {
+                "jsonToken": {
+                  "type": "string",
+                  "description": "String contendo um json com os tokens de acesso, de refresh, o nome do usuário e o tempo de validade restante para o token de acesso."
+                },
+                "resetPasswordInfo": {
+                  "type": "object",
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/resetPasswordInfo"
+                    }
+                  ],
+                  "description": "Informações para realizar o próximo passo da autenticação quando o usuário está sinalizado para alterar a senha após se autenticar."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida, parâmetros obrigatórios não informados"
+          },
+          "401": {
+            "description": "Código de verificação inválido"
+          },
+          "default": {
+            "description": "Error response",
+            "schema": {
+              "$ref": "#/definitions/genericError"
+            }
+          }
+        }
+      }
+    },
+    "/anonymous/actions/loginWithKey": {
+      "post": {
+        "description": "Realiza login na plataforma com chave e segredo informados pelo usuário.",
+        "tags": [
+          "Endpoints"
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Accept",
+            "description": "Content types and endpoint version for the request. Example: application/json;seniorx.version=2",
+            "type": "string"
+          },
+          {
+            "name": "input",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "accessKey",
+                "secret",
+                "tenantName"
+              ],
+              "properties": {
+                "accessKey": {
+                  "type": "string",
+                  "description": "Chave da aplicação"
+                },
+                "secret": {
+                  "type": "string",
+                  "description": "Segredo da chave informada"
+                },
+                "tenantName": {
+                  "type": "string",
+                  "description": "Nome do tenant em que se deseja efetuar o login"
+                },
+                "scope": {
+                  "type": "string",
+                  "description": "Escopo do token da autenticação. Opcional, se não for informado será usado o valor padrão 'desktop'"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "schema": {
+              "type": "object",
+              "required": [
+                "jsonToken"
+              ],
+              "properties": {
+                "jsonToken": {
+                  "type": "string",
+                  "description": "String contendo um json com o token de acesso e tempo de validade do token de acesso"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida, parâmetros obrigatórios não informados"
+          },
+          "401": {
+            "description": "Não foi possível efetuar o login no tenant com o accessKey e secret informados"
+          },
+          "default": {
+            "description": "Error response",
+            "schema": {
+              "$ref": "#/definitions/genericError"
+            }
+          }
+        }
+      }
+    },
+    "/actions/logout": {
+      "post": {
+        "description": "Invalida o token de acesso informado e publica um evento informando que o usuário realizou logout.",
+        "tags": [
+          "Endpoints"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Accept",
+            "description": "Content types and endpoint version for the request. Example: application/json;seniorx.version=2",
+            "type": "string"
+          },
+          {
+            "name": "input",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "accessToken"
+              ],
+              "properties": {
+                "accessToken": {
+                  "type": "string",
+                  "description": "Token de acesso que será invalidado."
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Requisição inválida, parâmetros obrigatórios não informados"
+          },
+          "401": {
+            "description": "Não foi possível efetuar o logout, token inválido"
+          },
+          "default": {
+            "description": "Error response",
+            "schema": {
+              "$ref": "#/definitions/genericError"
+            }
+          }
+        }
+      }
+    },
+    "/actions/refreshToken": {
+      "post": {
+        "description": "Gera um novo token a partir de um refresh_token, é utilizado para manter o usuário logado após o acess_token expirar.",
+        "tags": [
+          "Endpoints"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Accept",
+            "description": "Content types and endpoint version for the request. Example: application/json;seniorx.version=2",
+            "type": "string"
+          },
+          {
+            "in": "header",
+            "name": "X-Tenant",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "input",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "refreshToken"
+              ],
+              "properties": {
+                "refreshToken": {
+                  "type": "string",
+                  "description": "O refresh_token que foi retornado junto ao access_token durante o login."
+                },
+                "scope": {
+                  "type": "string",
+                  "description": "Escopo do token. Pode ser um dos seguintes valores: phone, desktop, tablet, iot ou wearable. Se não fornecido, o valor padrão é desktop"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "schema": {
+              "type": "object",
+              "required": [
+                "jsonToken"
+              ],
+              "properties": {
+                "jsonToken": {
+                  "type": "string",
+                  "description": "String contendo um json com os tokens de acesso, de refresh, o tempo de validade restante para o token de acesso e o nome do usuário"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida, parâmetros obrigatórios não informados"
+          },
+          "401": {
+            "description": "Não foi possível gerar novo token, token de atualização inválido"
+          },
+          "default": {
+            "description": "Error response",
+            "schema": {
+              "$ref": "#/definitions/genericError"
+            }
+          }
+        }
+      }
+    },
+    "/actions/configureOTPAuthentication": {
+      "post": {
+        "description": "Configura o fator de autenticação OTP (One time password) do tenant atual.",
+        "tags": [
+          "Endpoints"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Accept",
+            "description": "Content types and endpoint version for the request. Example: application/json;seniorx.version=2",
+            "type": "string"
+          },
+          {
+            "name": "input",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/OTPAuthenticationConfig"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "schema": {
+              "$ref": "#/definitions/genericError"
+            }
+          }
+        }
+      }
+    },
+    "/actions/enableOTPAuthForUsers": {
+      "post": {
+        "description": "Habilita/desabilita o fator de autenticação OTP para uma lista de usuários.",
+        "tags": [
+          "Endpoints"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Accept",
+            "description": "Content types and endpoint version for the request. Example: application/json;seniorx.version=2",
+            "type": "string"
+          },
+          {
+            "name": "input",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "usersConfig"
+              ],
+              "properties": {
+                "usersConfig": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "allOf": [
+                      {
+                        "$ref": "#/definitions/userEnableOTPAuth"
+                      }
+                    ],
+                    "minimum": 1
+                  },
+                  "description": "Lista com os usuários e uma flag indicando se a autenticação com one-time password deve ser habilitada ou não."
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "schema": {
+              "$ref": "#/definitions/genericError"
+            }
+          }
+        }
+      }
+    },
+    "/actions/resetUsersOTPAuthSecretKey": {
+      "post": {
+        "description": "Regera a chave para os usuários informados, obrigando aos usuários a reconfigurarem o Google Authenticator.",
+        "tags": [
+          "Endpoints"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Accept",
+            "description": "Content types and endpoint version for the request. Example: application/json;seniorx.version=2",
+            "type": "string"
+          },
+          {
+            "name": "input",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "users": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Identificador único dos usuários."
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "schema": {
+              "$ref": "#/definitions/genericError"
+            }
+          }
+        }
+      }
+    },
+    "/actions/resetTenantOTPAuthSecretKey": {
+      "post": {
+        "description": "Regera a chave para todos usuários do tenant (O tenant é obtido através do usuário que executou a primitiva), obrigando a todos usuários a reconfigurarem o Google Authenticator.",
+        "tags": [
+          "Endpoints"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Accept",
+            "description": "Content types and endpoint version for the request. Example: application/json;seniorx.version=2",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "schema": {
+              "$ref": "#/definitions/genericError"
+            }
+          }
+        }
+      }
+    },
+    "/actions/getSharedSecretKeyURI": {
+      "post": {
+        "description": "Retorna a chave secreta de um usuário no formato de URI, que pode ser usada para gerar um QR code. O QR code deve ser escaneado pelo usuário para configurar a chave no GoogleAuthenticator.\n A chave só será retornada se o status do usuário indicar que ele ainda não realizou a configuração do GoogleAuthenticator ou que sua chave foi regerada. A uri é retornada codificada em base 64, para gerar o QR code é necessário decodificá-la.",
+        "tags": [
+          "Endpoints"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Accept",
+            "description": "Content types and endpoint version for the request. Example: application/json;seniorx.version=2",
+            "type": "string"
+          },
+          {
+            "name": "input",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "temporaryToken"
+              ],
+              "properties": {
+                "temporaryToken": {
+                  "type": "string",
+                  "description": "Token temporário que foi enviado por email no link da página de ajuda"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "schema": {
+              "type": "object",
+              "required": [
+                "keyURI"
+              ],
+              "properties": {
+                "keyURI": {
+                  "type": "string",
+                  "description": "URI, codificada em base 64, no formato necessário para gerar o QR Code que será utilizado para configurar a chave secreta no GoogleAuthenticator."
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "schema": {
+              "$ref": "#/definitions/genericError"
+            }
+          }
+        }
+      }
+    },
+    "/actions/checkOTPConfiguration": {
+      "post": {
+        "description": "Verifica se o código informado é válido e se for, altera o status da configuração da autenticação OTP do usuário para CONFIGURED.\n Caso o status da configuração já seja CONFIGURED, irá lançar um erro do tipo Bad Request.",
+        "tags": [
+          "Endpoints"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Accept",
+            "description": "Content types and endpoint version for the request. Example: application/json;seniorx.version=2",
+            "type": "string"
+          },
+          {
+            "name": "input",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "temporaryToken",
+                "validationCode"
+              ],
+              "properties": {
+                "temporaryToken": {
+                  "type": "string",
+                  "description": "Token temporário que foi enviado por email no link da página de ajuda."
+                },
+                "validationCode": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "Código de validação gerado pelo Google Authenticator"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "schema": {
+              "type": "object",
+              "required": [
+                "isValid"
+              ],
+              "properties": {
+                "isValid": {
+                  "type": "boolean",
+                  "description": "Indica se o código informado é válido."
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "schema": {
+              "$ref": "#/definitions/genericError"
+            }
+          }
+        }
+      }
+    },
+    "/actions/sendMFAConfigEmail": {
+      "post": {
+        "description": "Envia um e-mail com as instruções de configuração do SoftToken (Google Authenticator) para o usuário.",
+        "tags": [
+          "Endpoints"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Accept",
+            "description": "Content types and endpoint version for the request. Example: application/json;seniorx.version=2",
+            "type": "string"
+          },
+          {
+            "name": "input",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "temporaryToken"
+              ],
+              "properties": {
+                "temporaryToken": {
+                  "type": "string",
+                  "description": "Token temporário que foi obtido na primitiva de login."
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "schema": {
+              "type": "object",
+              "required": [
+                "emailAddress"
+              ],
+              "properties": {
+                "emailAddress": {
+                  "type": "string",
+                  "description": "Endereço para o qual o e-mail foi enviado."
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "schema": {
+              "$ref": "#/definitions/genericError"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "externalAuthProvider": {
+      "description": "Tipos de provedores externos de autenticação",
+      "type": "string",
+      "enum": [
+        "SAML"
+      ]
+    },
+    "authType": {
+      "description": "Tipo de autenticação",
+      "type": "string",
+      "enum": [
+        "G7",
+        "G5",
+        "LDAP",
+        "SAML"
+      ]
+    },
+    "userOTPAuthStatusDTO": {
+      "description": "Status da configuração da autenticação OTP de um usuário.",
+      "type": "string",
+      "enum": [
+        "UNCONFIGURED",
+        "CONFIGURED",
+        "RESETTED"
+      ]
+    },
+    "userNotificationKind": {
+      "description": "User notification kind.",
+      "type": "string",
+      "enum": [
+        "Operational",
+        "Management",
+        "News"
+      ]
+    },
+    "userNotificationPriority": {
+      "description": "User notification priority.",
+      "type": "string",
+      "enum": [
+        "Error",
+        "Alert",
+        "None"
+      ]
+    },
+    "eventEmailFormat": {
+      "description": "Format of the email",
+      "type": "string",
+      "enum": [
+        "HTML",
+        "PLAIN_TEXT"
+      ]
+    },
+    "OTPAuthenticationConfig": {
+      "description": "Configuração do fator de autenticação OTP (One time password)",
+      "type": "object",
+      "required": [
+        "emailSubject",
+        "emailBody"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Indica se a autenticação com o fator One Time Password está habilitada para o tenant.\n Se for true, todos os usuários irão utilizar o segundo fator de autenticação, a não ser que seja configurado explicitamente para algum usuário não utilizar.",
+          "default": false
+        },
+        "maxAttempts": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Número máximo de tentivas para validar um token OTP. Ao atingir o número máximo de tentativas, o usuário será bloqueado. O valor padrão é 3 tentativas. ATENÇÃO: por enquanto esse valor não é utilizado.",
+          "default": 3
+        },
+        "emailSubject": {
+          "type": "string",
+          "description": "Assunto do e-mail que será enviado para o usuário, ao solicitar a configuração de MFA"
+        },
+        "emailBody": {
+          "type": "string",
+          "description": "Corpo do e-mail que será enviado para o usuário, ao solicitar a configuração de MFA.\n É possível informar os placeholders ${link}, ${nome} e ${usuario}, que representam respectivamente o link para acessar a página de configuração, o nome completo do usuário e o nome do usuário usado no login."
+        },
+        "configTokenDuration": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Tempo de duração (em minuitos) do token que é enviado no link do e-mail com as instruções para o usuário configurar a chave secreta no Google Authenticator.\n É necessário um tempo limite pois com esse token é possível obter a chave secreta do usuário.\n A chave secreta é uma informação sensível, que se estiver em posse de outra pessoa, essa pessoa poderá fazer login no lugar do usuário caso descubra sua senha.\n O valor padrão é 30 minutos.",
+          "default": 30
+        }
+      }
+    },
+    "userOTPAuthConfig": {
+      "description": "Configuração do fator de autenticação One Time Password de um usuário específico.",
+      "type": "object",
+      "required": [
+        "userId",
+        "completeUserName",
+        "username",
+        "authenticationType",
+        "enabled"
+      ],
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Identificador único do usuário"
+        },
+        "completeUserName": {
+          "type": "string",
+          "description": "Nome completo do usuário"
+        },
+        "username": {
+          "type": "string",
+          "description": "Nome da conta do usuário"
+        },
+        "authenticationType": {
+          "type": "string",
+          "allOf": [
+            {
+              "$ref": "#/definitions/authType"
+            }
+          ],
+          "description": "Tipo de autenticação do usuário"
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "Indica se a autenticação MFA com o fator One Time Password está habilitada para o usuário."
+        }
+      }
+    },
+    "changePasswordSettings": {
+      "description": "Configurações de redefinição de senha.",
+      "type": "object",
+      "required": [
+        "allowed",
+        "url"
+      ],
+      "properties": {
+        "allowed": {
+          "type": "boolean",
+          "description": "Indica se é permitida a redefinição de senha."
+        },
+        "url": {
+          "type": "string",
+          "description": "Url da tela para redefinição de senha."
+        }
+      }
+    },
+    "rememberMeSettings": {
+      "description": "Configurações de lembrar-me.",
+      "type": "object",
+      "required": [
+        "allowed",
+        "expiration"
+      ],
+      "properties": {
+        "allowed": {
+          "type": "boolean",
+          "description": "Indica se é permitida a opção lembrar-me na tela de login."
+        },
+        "expiration": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Tempo de vida (em horas) do cookie ao marcar a opção lembrar-me."
+        }
+      }
+    },
+    "loginProviders": {
+      "description": "Provedores de login.",
+      "type": "object",
+      "properties": {
+        "saml": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/samlProvider"
+            }
+          ],
+          "description": "Provedor de login SAML"
+        }
+      }
+    },
+    "samlProvider": {
+      "description": "Provedor de login SAML",
+      "type": "object",
+      "required": [
+        "url"
+      ],
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "Url para realizar login"
+        }
+      }
+    },
+    "userEnableOTPAuth": {
+      "description": "Configuração para habilitar a autenticação com o fator One-time password para um usuário.",
+      "type": "object",
+      "required": [
+        "userId",
+        "enabled"
+      ],
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Identificador único do usuário"
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "Indica se a autenticação MFA com o fator One-time Password deve ser habilitada ou não para os usuário."
+        }
+      }
+    },
+    "loginMFAInfo": {
+      "description": "Informações retornadas na primitiva de login quando o usuário utiliza autenticação multifator.",
+      "type": "object",
+      "required": [
+        "temporaryToken",
+        "mfaStatus",
+        "tenant"
+      ],
+      "properties": {
+        "temporaryToken": {
+          "type": "string",
+          "description": "Token temporário gerado quando o usuário possui autenticação multifator habilitada."
+        },
+        "mfaStatus": {
+          "type": "string",
+          "allOf": [
+            {
+              "$ref": "#/definitions/userOTPAuthStatusDTO"
+            }
+          ],
+          "description": "Status da configuração da autenticação multifator por parte do usuário. Se for UNCONFIGURED ou RESETTED, deverá ser chamado a primitiva que envia um e-mail com as instruções para a configuração do MFA."
+        },
+        "tenant": {
+          "type": "string",
+          "description": "Nome do tenant"
+        }
+      }
+    },
+    "resetPasswordInfo": {
+      "description": "Informações retornadas na primitiva de login quando o usuário precisa alterar a senha após efetuar login",
+      "type": "object",
+      "required": [
+        "temporaryToken",
+        "tenant"
+      ],
+      "properties": {
+        "temporaryToken": {
+          "type": "string",
+          "description": "Token temporário gerado quando o usuário precisa alterar a senha"
+        },
+        "tenant": {
+          "type": "string",
+          "description": "Nome do tenant"
+        }
+      }
+    },
+    "notifyUserEventPayload": {
+      "description": "Represents a regular user event notification payload",
+      "discriminator": "_discriminator",
+      "type": "object",
+      "required": [
+        "notificationKind",
+        "notificationPriority",
+        "notificationSubject",
+        "notificationContent",
+        "sourceDomain",
+        "sourceService",
+        "destinationUser",
+        "_discriminator"
+      ],
+      "properties": {
+        "notificationClass": {
+          "type": "string",
+          "description": "Class of notification"
+        },
+        "notificationOrigin": {
+          "type": "string",
+          "description": "Origin of notification. Free text. Optional."
+        },
+        "notificationKind": {
+          "type": "string",
+          "allOf": [
+            {
+              "$ref": "#/definitions/userNotificationKind"
+            }
+          ],
+          "description": "Notification kind."
+        },
+        "notificationPriority": {
+          "type": "string",
+          "allOf": [
+            {
+              "$ref": "#/definitions/userNotificationPriority"
+            }
+          ],
+          "description": "Notification priority."
+        },
+        "notificationSubject": {
+          "type": "string",
+          "description": "Notification subject."
+        },
+        "notificationContent": {
+          "type": "string",
+          "description": "Notification content."
+        },
+        "sourceDomain": {
+          "type": "string",
+          "description": "Domain that generates the notification."
+        },
+        "sourceService": {
+          "type": "string",
+          "description": "Service that generates the notification."
+        },
+        "destinationUser": {
+          "type": "string",
+          "description": "Username of the destination user."
+        },
+        "link": {
+          "type": "string",
+          "description": "Notification link"
+        },
+        "_discriminator": {
+          "type": "string",
+          "description": ""
+        }
+      }
+    },
+    "emailNotifyUserEventPayload": {
+      "description": "Represents an email notification payload",
+      "allOf": [
+        {
+          "$ref": "#/definitions/notifyUserEventPayload"
+        },
+        {
+          "type": "object",
+          "required": [
+            "from"
+          ],
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "Email sender address"
+            },
+            "sendTo": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Additional recipients to send the email to"
+            },
+            "format": {
+              "type": "string",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/eventEmailFormat"
+                }
+              ],
+              "description": "Email format"
+            }
+          }
+        }
+      ]
+    },
+    "pushNotifyUserEventPayload": {
+      "description": "Represents a push notification payload",
+      "allOf": [
+        {
+          "$ref": "#/definitions/notifyUserEventPayload"
+        },
+        {
+          "type": "object",
+          "required": [
+            "applicationId"
+          ],
+          "properties": {
+            "applicationId": {
+              "type": "string",
+              "description": "Apple/Google application id"
+            }
+          }
+        }
+      ]
+    },
+    "blobReference": {
+      "description": "Default blob reference type. Every service defines its own.",
+      "type": "object",
+      "required": [
+        "targetObjectId"
+      ],
+      "properties": {
+        "domainName": {
+          "type": "string",
+          "description": "The domain the blob belongs to."
+        },
+        "serviceName": {
+          "type": "string",
+          "description": "The service the blob belongs to."
+        },
+        "targetObjectId": {
+          "type": "string",
+          "description": "The basic id of the blob."
+        },
+        "targetCopyId": {
+          "type": "string",
+          "description": "The id of the blob copy."
+        }
+      }
+    },
+    "basicErrorPayload": {
+      "description": "Default error payload type. Every service defines its own.",
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "The user-facing error message, if any."
+        },
+        "errorCode": {
+          "type": "string",
+          "description": "The program-accessible (and service-specific) error code."
+        }
+      }
+    },
+    "dependency": {
+      "description": "Represents a service dependency",
+      "type": "object",
+      "required": [
+        "domain",
+        "service",
+        "version"
+      ],
+      "properties": {
+        "domain": {
+          "type": "string",
+          "description": "Domain of the dependency service"
+        },
+        "service": {
+          "type": "string",
+          "description": "Name of the dependency service"
+        },
+        "version": {
+          "type": "string",
+          "description": "Version of the dependency service"
+        }
+      }
+    },
+    "genericError": {
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "Messaging describing the error."
+        },
+        "reason": {
+          "type": "string",
+          "description": "A symbolic code identifying the category of the reason of the error.",
+          "enum": [
+            "BAD_REQUEST",
+            "UNAUTHORIZED",
+            "PAYMENT_REQUIRED",
+            "FORBIDDEN",
+            "OBJECT_NOT_FOUND",
+            "REQUEST_TIMEOUT",
+            "GONE",
+            "UNPROCESSABLE",
+            "INTERNAL_ERROR",
+            "NOT_IMPLEMENTED",
+            "SERVICE_UNAVAILABLE",
+            "INSUFFICIENT_STORAGE"
+          ]
+        }
+      }
+    }
+  }
+}

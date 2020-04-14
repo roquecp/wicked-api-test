@@ -13,8 +13,8 @@
       "email": "seniorx-dev@senior.com.br"
     }
   },
-  "host": "platform.senior.com.br",
-  "basePath": "/t/senior.com.br/bridge/1.0/rest/platform/authentication/",
+  "host": "api.senior.com.br",
+  "basePath": "/authentication/",
   "securityDefinitions": {
     "bearerAuth": {
       "type": "apiKey",
